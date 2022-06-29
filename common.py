@@ -4,6 +4,7 @@ from typing import Dict, Optional, Set, Union
 
 LoggingLevelType = Union[int, str]
 
+
 # From https://refactoring.guru/design-patterns/singleton/python/example
 class SingletonMeta(type):
     """
@@ -24,6 +25,7 @@ class SingletonMeta(type):
             cls._instances[cls] = instance
         return cls._instances[cls]
 
+
 class GlobalConfig(metaclass=SingletonMeta):
     logging_levels: Dict[str, LoggingLevelType] = dict()
     default_level: LoggingLevelType = logging.DEBUG
@@ -31,9 +33,10 @@ class GlobalConfig(metaclass=SingletonMeta):
     logfilename: Optional[str] = None
 
     def get_logging_level(
-            self, logger_name: str,
-            default_value: Optional[LoggingLevelType] = None) -> LoggingLevelType:
-        if(logger_name  in self.logging_levels):
+        self, logger_name: str,
+        default_value: Optional[LoggingLevelType] = None
+    ) -> LoggingLevelType:
+        if(logger_name in self.logging_levels):
             return self.logging_levels[logger_name]
 
         if(default_value is not None):
@@ -69,15 +72,18 @@ class GlobalConfig(metaclass=SingletonMeta):
         # formatter = logging.Formatter('%(message)s')
 
         # Debug timing
-        formatter = logging.Formatter('[%(asctime)s]  %(message)s', "%m/%d %H:%M:%S")
+        formatter = logging.Formatter(
+            '[%(asctime)s]  %(message)s', "%m/%d %H:%M:%S")
 
         # Debug loggers
-        # formatter = logging.Formatter('[%(asctime)s]:%(name)10s:%(levelname)6s  %(message)s',
-        #                               "%m/%d %H:%M:%S")
+        # formatter = logging.Formatter(
+        #     '[%(asctime)s]:%(name)10s:%(levelname)6s  %(message)s',
+        #     "%m/%d %H:%M:%S")
 
         # Debug levels
-        # formatter = logging.Formatter('[%(asctime)s]:%(levelname)6s  %(message)s',
-        #                               "%m/%d %H:%M:%S")
+        # formatter = logging.Formatter(
+        #     '[%(asctime)s]:%(levelname)6s  %(message)s',
+        #     "%m/%d %H:%M:%S")
 
         # add formatter to ch
         handler.setFormatter(formatter)
@@ -88,3 +94,37 @@ class GlobalConfig(metaclass=SingletonMeta):
 
         # add ch to logger
         logger.addHandler(handler)
+
+
+# From https://stackoverflow.com/questions/287871/how-do-i-print-colored-text-to-the-terminal
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+    GENERATOR = OKCYAN
+    VERIFIER = WARNING
+    CANDIDATESOLUTION = BOLD + OKBLUE
+    PROVEDSOLUTION = BOLD + OKGREEN
+
+    @staticmethod
+    def generator(s: str):
+        return bcolors.GENERATOR + s + bcolors.ENDC
+
+    @staticmethod
+    def verifier(s: str):
+        return bcolors.VERIFIER + s + bcolors.ENDC
+
+    @staticmethod
+    def candidate(s: str):
+        return bcolors.CANDIDATESOLUTION + s + bcolors.ENDC
+
+    @staticmethod
+    def proved(s: str):
+        return bcolors.PROVEDSOLUTION + s + bcolors.ENDC
