@@ -107,24 +107,3 @@ class bcolors:
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
-
-    GENERATOR = OKCYAN
-    VERIFIER = WARNING
-    CANDIDATESOLUTION = BOLD + OKBLUE
-    PROVEDSOLUTION = BOLD + OKGREEN
-
-    @staticmethod
-    def generator(s: str):
-        return bcolors.GENERATOR + s + bcolors.ENDC
-
-    @staticmethod
-    def verifier(s: str):
-        return bcolors.VERIFIER + s + bcolors.ENDC
-
-    @staticmethod
-    def candidate(s: str):
-        return bcolors.CANDIDATESOLUTION + s + bcolors.ENDC
-
-    @staticmethod
-    def proved(s: str):
-        return bcolors.PROVEDSOLUTION + s + bcolors.ENDC
