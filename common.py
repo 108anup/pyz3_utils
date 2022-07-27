@@ -1,4 +1,5 @@
 import logging
+import os
 import sys
 from typing import Dict, Optional, Set, Union
 
@@ -31,6 +32,7 @@ class GlobalConfig(metaclass=SingletonMeta):
     default_level: LoggingLevelType = logging.DEBUG
     active_loggers: Set[logging.Logger] = set()
     logfilename: Optional[str] = None
+    log_dir: str = 'logs'
 
     def get_logging_level(
         self, logger_name: str,
@@ -48,8 +50,9 @@ class GlobalConfig(metaclass=SingletonMeta):
         for logger in self.active_loggers:
             self.default_logger_setup(logger)
 
-    def log_to_file(self, file_name):
+    def log_to_file(self, file_name, log_dir='logs'):
         self.logfilename = file_name
+        self.log_dir = log_dir
         self.reset_loggers()
 
     def default_logger_setup(self, logger: logging.Logger):
@@ -63,7 +66,8 @@ class GlobalConfig(metaclass=SingletonMeta):
         handler = ch
 
         if(self.logfilename is not None):
-            fh = logging.FileHandler('logs/{}'.format(self.logfilename))
+            fh = logging.FileHandler(
+                os.path.join(self.log_dir, self.logfilename))
             fh.setLevel(this_level)
             handler = fh
 
