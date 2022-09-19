@@ -5,7 +5,7 @@ is deterministic if query returned without timeout. If answer is unknown
 because of timeout, makes note of that
 '''
 
-
+import numpy as np
 from .my_solver import MySolver
 from fractions import Fraction
 import hashlib
@@ -78,7 +78,7 @@ def fill_obj_from_dict(v, m: ModelDict):
 
     if str(v) in m:
         return m[str(v)]
-    if isinstance(v, List):
+    if isinstance(v, List) or isinstance(v, np.ndarray):
         return [fill_obj_from_dict(e, m) for e in v]
     if not isinstance(v, Variables):
         return None
@@ -88,7 +88,8 @@ def fill_obj_from_dict(v, m: ModelDict):
     for x in v.__dict__:
         if str(v.__dict__[x]) in m:
             res.__dict__[x] = m[str(v.__dict__[x])]
-        elif type(v.__dict__[x]) == list:
+        elif (isinstance(v.__dict__[x], list)
+              or isinstance(v.__dict__[x], np.ndarray)):
             res.__dict__[x] = [fill_obj_from_dict(y, m) for y in v.__dict__[x]]
         elif isinstance(v.__dict__[x], Variables):
             res.__dict__[x] = fill_obj_from_dict(v.__dict__[x], m)

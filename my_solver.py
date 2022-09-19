@@ -33,6 +33,7 @@ class MySolver:
         self.track_unsat = False
         self.assertion_list = []
         self.warn_undeclared = True
+        self.identity_variables = ['And', 'Or']
 
     def check_expr(self, expr):
         if(type(expr) == bool):
@@ -40,7 +41,7 @@ class MySolver:
         for var in extract_vars(expr):
             if not self.warn_undeclared:
                 self.variables.add(var)
-            if var not in self.variables:
+            if var not in self.variables and var not in self.identity_variables:
                 print(f"Warning: {var} in {str(expr)} not previously declared")
                 return False
         return True
