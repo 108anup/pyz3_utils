@@ -29,22 +29,21 @@ class MySolver:
         # None. If ctx!=None, we ensure the right context is being used
         self.ctx = ctx
         self.num_constraints = 0
-        # self.variables = {"False", "True"}
+        self.variables = {"False", "True"}
         self.track_unsat = False
         self.assertion_list = []
         self.warn_undeclared = True
-        # self.identity_variables = ['And', 'Or']
+        self.identity_variables = ['And', 'Or']
 
     def check_expr(self, expr):
         if(type(expr) == bool):
             return True
-        assert not self.warn_undeclared
-        # for var in extract_vars(expr):
-        #     if not self.warn_undeclared:
-        #         self.variables.add(var)
-        #     if var not in self.variables and var not in self.identity_variables:
-        #         print(f"Warning: {var} in {str(expr)} not previously declared")
-        #         return False
+        for var in extract_vars(expr):
+            if not self.warn_undeclared:
+                self.variables.add(var)
+            if var not in self.variables and var not in self.identity_variables:
+                print(f"Warning: {var} in {str(expr)} not previously declared")
+                return False
         return True
 
     def add(self, expr):
@@ -92,28 +91,28 @@ class MySolver:
 
     def Real(self, name: str, ctx=None):
         assert ctx == self.ctx
-        # if name in self.variables:
-        #     print(f"Warning: {name} declared previously.")
-        # self.variables.add(name)
+        if name in self.variables:
+            print(f"Warning: {name} declared previously.")
+        self.variables.add(name)
         return Real(name, ctx)
 
     def Function(self, name: str, t1, t2):
-        # if name in self.variables:
-        #     print(f"Warning: {name} declared previously.")
-        # self.variables.add(name)
+        if name in self.variables:
+            print(f"Warning: {name} declared previously.")
+        self.variables.add(name)
         # Takes ctx from t1, t2
         return Function(name, t1, t2)
 
     def Int(self, name: str, ctx=None):
         assert ctx == self.ctx
-        # if name in self.variables:
-        #     print(f"Warning: {name} declared previously.")
-        # self.variables.add(name)
+        if name in self.variables:
+            print(f"Warning: {name} declared previously.")
+        self.variables.add(name)
         return Int(name, ctx=ctx)
 
     def Bool(self, name: str, ctx=None):
         assert ctx == self.ctx
-        # if name in self.variables:
-        #     print(f"Warning: {name} declared previously.")
-        # self.variables.add(name)
+        if name in self.variables:
+            print(f"Warning: {name} declared previously.")
+        self.variables.add(name)
         return Bool(name, ctx=ctx)
