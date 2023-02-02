@@ -1,6 +1,15 @@
-from typing import Any, List, Set
-from z3 import ArithRef, Bool, BoolRef, Function, FuncDeclRef, Int, Real,\
-    Solver
+import logging
+import time
+from typing import List
+
+from z3 import (ArithRef, Bool, BoolRef, FuncDeclRef, Function, Int, Real,
+                Solver)
+from z3.z3types import Z3Exception
+
+from pyz3_utils.common import GlobalConfig
+
+logger = logging.getLogger('pyz3_utils')
+GlobalConfig().default_logger_setup(logger)
 
 
 def extract_vars(e: BoolRef) -> List[str]:
@@ -33,6 +42,7 @@ class MySolver:
         self.track_unsat = False
         self.assertion_list = []
         self.warn_undeclared = True
+        self.num_retries = 1
         # self.identity_variables = ['And', 'Or']
 
     def check_expr(self, expr):
@@ -62,8 +72,60 @@ class MySolver:
             self.track_unsat = True
         return self.s.set(**kwds)
 
-    def check(self):
+    def deprecated_check(self):
         return self.s.check()
+
+    def check(self):
+        attempt = 0
+        start = time.time()
+        while(True):
+            attempt += 1
+            try:
+                ret = self.s.check()
+            except Z3Exception as e:
+                end = time.time()
+                logger.error(
+                    f"Solver"
+                    f" threw error after {end - start:.6f} secs"
+                    f" on attempt {attempt}.")
+                logger.error(f"{e}")
+                if(attempt <= self.num_retries):
+                    logger.info(
+                        f"Recreating and restarting solver")
+                    self.recreate_solver()
+                else:
+                    raise e
+            else:
+                break
+
+        end = time.time()
+        if(attempt > 1):
+            logger.info(f"Solver returned"
+                        f" in {end-start:.6f} secs.")
+        return ret
+
+    def recreate_solver(self):
+        # This recreates a solver with the same hierarchy of assertions. The new
+        # solver does not have the same params as the old. This only works if
+        # the old solver hasn't changed any params. I am not sure if there is a
+        # way to query the value of params for a solver using python. So we
+        # can't copy the params :(
+        ast = self.s.assertions()
+        ns = self.s.num_scopes()
+        nassertions_at_scope = [len(ast)]
+        for _ in range(ns):
+            self.s.pop()
+            nassertions_at_scope.append(len(self.s.assertions()))
+        nassertions_at_scope.reverse()
+
+        new_solver = Solver(self.ctx)
+        new_solver.add(ast[:nassertions_at_scope[0]])
+        for i in range(1, ns+1):
+            new_solver.push()
+            new_solver.add(
+                ast[nassertions_at_scope[i-1]:nassertions_at_scope[i]])
+
+        self.s = new_solver
 
     def model(self):
         return self.s.model()
