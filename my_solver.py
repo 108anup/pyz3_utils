@@ -118,7 +118,7 @@ class MySolver:
             nassertions_at_scope.append(len(self.s.assertions()))
         nassertions_at_scope.reverse()
 
-        new_solver = Solver(self.ctx)
+        new_solver = Solver(ctx=self.ctx)
         new_solver.add(ast[:nassertions_at_scope[0]])
         for i in range(1, ns+1):
             new_solver.push()
