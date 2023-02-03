@@ -44,6 +44,8 @@ class MySolver:
         self.warn_undeclared = True
         self.num_retries = 1
         # self.identity_variables = ['And', 'Or']
+        self.num_checks = 0
+        self.total_check_time = 0
 
     def check_expr(self, expr):
         if(type(expr) == bool):
@@ -99,6 +101,8 @@ class MySolver:
                 break
 
         end = time.time()
+        self.num_checks += 1
+        self.total_check_time += end - start
         if(attempt > 1):
             logger.info(f"Solver returned"
                         f" in {end-start:.6f} secs.")
