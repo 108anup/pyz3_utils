@@ -18,6 +18,8 @@ def extract_vars(e: BoolRef) -> List[str]:
             return []
         elif type(e) == ArithRef or type(e) == BoolRef\
                 or type(e) == FuncDeclRef:
+            if(str(e) in ["True", "False", "And", "Or"]):
+                return []
             return [str(e)]
         else:
             return []
